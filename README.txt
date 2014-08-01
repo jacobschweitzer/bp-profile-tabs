@@ -40,6 +40,15 @@ You can change the theme BuddyPress Profile Tabs is using in the options section
 3. BuddyPress User Profile Fields Options
 
 == Changelog ==
+= 1.5 =
+Updates for BuddyPress 2.0
+Added jQuery CDN
+Added options import and export
+Removed base theme as no longer supported by jQuery UI
+Updated jQuery UI themes to version 1.11.0 ( except from Microsoft which is still at 1.10.4 )
+Various performance enhancements and fixes
+
+
 = 1.4 = 
 New jQuery UI CSS
 Fixed tab order issue 
