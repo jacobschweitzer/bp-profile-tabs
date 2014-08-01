@@ -1,112 +1,56 @@
-=== @TODO: Plugin Name ===
-Contributors: (this should be a list of wordpress.org userids)
-Donate link: http://example.com/
-Tags: comments, spam
-Requires at least: 3.9
-Tested up to: 3.9
-Stable tag: 1.0.0
+=== Plugin Name ===
+Contributors: primetimejas
+Donate link: http://jacobschweitzer.com/
+Tags: BuddyPress, jQuery, jQueryUI, Profile, Tabs
+Requires at least: 3.4.2
+Tested up to: 3.6
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+BuddyPress Profile Tabs is a plugin that uses the Profile Groups provided in the BuddyPress options to make nice looking tabs using the jQuery UI. 
+
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+There is an admin section Options -> BP Profile Tabs where you can change the jQuery UI Theme, the default is cupertino.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+Any of the themes available at http://jqueryui.com/themeroller/ can be used for the tabs, it loads either Google or Microsoft hosted jQuery UI theme CSS.
 
-A few notes about the sections above:
-
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
-
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
-
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-= Using The WordPress Dashboard =
-
-1. Navigate to the 'Add New' in the plugins dashboard
-2. Search for 'plugin-name'
-3. Click 'Install Now'
-4. Activate the plugin on the Plugin dashboard
-
-= Uploading in WordPress Dashboard =
-
-1. Navigate to the 'Add New' in the plugins dashboard
-2. Navigate to the 'Upload' area
-3. Select `plugin-name.zip` from your computer
-4. Click 'Install Now'
-5. Activate the plugin in the Plugin dashboard
-
-= Using FTP =
-
-1. Download `plugin-name.zip`
-2. Extract the `plugin-name` directory to your computer
-3. Upload the `plugin-name` directory to the `/wp-content/plugins/` directory
-4. Activate the plugin in the Plugin dashboard
-
-
-== Frequently Asked Questions ==
-
-= A question that someone might have =
-
-An answer to that question.
-
-= What about foo bar? =
-
-Answer to foo bar dilemma.
-
-== Screenshots ==
-
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
-
-== Changelog ==
-
-= 1.0 =
-* A change since the previous version.
-* Another change.
-
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+1. Upload bp-profile-tabs.zip to the `/wp-content/plugins/` directory
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Configure the options under Options -> BP Profile Tabs in the Wordpress Admin section.
 
 == Upgrade Notice ==
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
+1.
 
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
+== Frequently Asked Questions == 
 
-== Arbitrary section ==
+= Why is the theme cupertino? =
+You can change the theme BuddyPress Profile Tabs is using in the options section for the plugin under Options -> BP Profile Tabs. 
 
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
+== Screenshots ==
 
-== Updates ==
+1. Profile Page Using BuddyPress Profile Tabs and the Redmond theme
+2. BuddyPress Profile Tabs Options Page
+3. BuddyPress User Profile Fields Options
 
-The basic structure of this plugin was cloned from the [WordPress-Plugin-Boilerplate](https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate) project.
+== Changelog ==
+= 1.4 = 
+New jQuery UI CSS
+Fixed tab order issue 
+Verified to work with BuddyPress 1.8
+Verified to work with WordPress 3.6
+
+= 1.3 =
+Allows either Google or Microsoft hosted jQuery UI CSS
+Changed how the menu names are loading, using PHP instead of several small Javascript insertions
+
+= 1.1 =
+* A bit of code cleanup to make it easier to read for developers.
+* Re-organizing the code to make it a little more efficient.
+* Re-worked a bit of the javascript to ensure compatibility. 
