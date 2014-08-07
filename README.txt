@@ -40,6 +40,9 @@ You can change the theme BuddyPress Profile Tabs is using in the options section
 3. BuddyPress User Profile Fields Options
 
 == Changelog ==
+= 1.5.1 =
+* Fixed anonymous function issue ( for WordPress installs running on PHP version < 5.3 )
+
 = 1.5 =
 * Updates for BuddyPress 2.0
 * Added jQuery CDN
