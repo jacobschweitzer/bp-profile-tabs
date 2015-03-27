@@ -44,7 +44,6 @@ class BP_Profile_Tabs {
 	protected static $instance = null;
 
 	
-	
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
 	 * and styles.
@@ -68,6 +67,10 @@ class BP_Profile_Tabs {
 
 		
 		add_action( 'wp_enqueue_scripts', array($this, 'register_bpt_script' ) );
+
+		global $wpdb;
+		$profile_field_groups_query = 'SELECT id, name FROM `'.$wpdb->prefix.'bp_xprofile_groups` order by group_order';
+		$this->groups_list = $wpdb->get_results($profile_field_groups_query);
 	}
 
 	/**
@@ -291,15 +294,10 @@ class BP_Profile_Tabs {
 	 */
 	public function bp_profile_tabs_top() {
 		echo '<div id="tabs"><ul>';
-		global $wpdb;
-		$profile_field_groups_query = 'SELECT name FROM `'.$wpdb->prefix.'bp_xprofile_groups` order by group_order';
-		$groups_list = $wpdb->get_col($profile_field_groups_query);
-		$looper = 1;
-		foreach ( $groups_list as $one_group_name ) {
-			echo '<li><a href="#tabs-'.$looper.'">';
-			echo $one_group_name;
+		foreach ( $this->groups_list as $group ) {
+			echo '<li><a href="#tabs-'.$group->id.'">';
+			echo $group->name;
 			echo '</a></li>';
-			$looper++;
 		}
 		echo '</ul>';
 	}
@@ -310,8 +308,8 @@ class BP_Profile_Tabs {
 	 */
 	public function bp_profile_tabs_start_div() {
 		if ( bp_is_user_profile() && !bp_is_user_profile_edit() ) {
-			$profile_group_slug = bp_get_the_profile_group_id();
-			echo '<div id="tabs-'.$profile_group_slug.'">';
+			$profile_group_id = bp_get_the_profile_group_id();
+			echo '<div id="tabs-'.$profile_group_id.'">';
 		}
 		
 	}
@@ -336,7 +334,7 @@ class BP_Profile_Tabs {
 
 		wp_enqueue_style( $this->plugin_slug . '-jquery-ui-style' );
 		wp_enqueue_script( $this->plugin_slug . '-script' );
-
+		//echo $this->get_jquery_ui_version();
 	}
 	 /**
 	 * Registers the tabs javascript and jQuery UI style.
@@ -347,17 +345,38 @@ class BP_Profile_Tabs {
 		wp_register_script( $this->plugin_slug . '-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'jquery-ui-tabs' ), self::VERSION );
 
 		$bpt_options = get_option("bp_profile_tabs_option");
+		$protocol = is_ssl() ? 'https' : 'http';
+		$jquery_ui_version = $this->get_jquery_ui_version();
 		if ( $bpt_options['bpt_cdn'] == 'google' ) {
-				$jquery_ui_css_url = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
+			$jquery_ui_css_url = $protocol . '://ajax.googleapis.com/ajax/libs/jqueryui/'.$jquery_ui_version.'/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
 		}
 		if ( $bpt_options['bpt_cdn'] == 'microsoft' ) {
-			$jquery_ui_css_url = 'http://ajax.aspnetcdn.com/ajax/jquery.ui/1.10.4/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
+			$jquery_ui_css_url = $protocol . '://ajax.aspnetcdn.com/ajax/jquery.ui/'.$jquery_ui_version.'/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
 		}
 		if ( $bpt_options['bpt_cdn'] == 'jquery' ) {
-			$jquery_ui_css_url = 'http://code.jquery.com/ui/1.11.0/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
+			$jquery_ui_css_url = $protocol . '://code.jquery.com/ui/'.$jquery_ui_version.'/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
 		}
 
 		wp_register_style( $this->plugin_slug . '-jquery-ui-style', $jquery_ui_css_url, array(), self::VERSION );
+	}
+
+
+	public function get_jquery_ui_version() {
+
+		global $wp_scripts;
+
+		if( !$wp_scripts instanceof WP_Scripts )
+			$wp_scripts = new WP_Scripts();
+
+		$jquery_ui_core = $wp_scripts->query( 'jquery-ui-core' );
+
+		if( !$jquery_ui_core instanceof _WP_Dependency )
+			return $this->ui_version;
+
+		if( !isset( $jquery_ui_core->ver ) )
+			return $this->ui_version;
+
+		return $jquery_ui_core->ver;
 	}
 
 }

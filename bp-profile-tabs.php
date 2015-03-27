@@ -11,7 +11,7 @@
  * Plugin Name:       BuddyPress Profile Tabs
  * Plugin URI:        http://ijas.me
  * Description:       Makes the profile groups BuddyPress provides into tabs to better organize and consolidate the profile page. 
- * Version:           1.5.4
+ * Version:           1.5.7
  * Author:            Jacob Schweitzer
  * Author URI:        http://ijas.me
  * Text Domain:       bp-profile-tabs
@@ -29,11 +29,6 @@ if ( !defined( 'WPINC' ) ) {
  * Load Main Plugin File
  */
 require_once( plugin_dir_path( __FILE__ ) . 'public/class-bp-profile-tabs.php' );
-
-/*
- * Load Language wrapper function for WPML/Ceceppa Multilingua/Polylang
- */
-require_once( plugin_dir_path( __FILE__ ) . 'includes/language.php' );
 
 /*
  * Register hooks that are fired when the plugin is activated or deactivated.
