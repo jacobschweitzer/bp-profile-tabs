@@ -43,7 +43,6 @@ class BP_Profile_Tabs {
 	 */
 	protected static $instance = null;
 
-	
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
 	 * and styles.
@@ -51,26 +50,26 @@ class BP_Profile_Tabs {
 	 * @since     1.5.0
 	 */
 	private function __construct() {
-		// Load plugin text domain
+		// Load plugin text domain.
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 
-		// Activate plugin when new blog is added
+		// Activate plugin when new blog is added.
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
 
-		add_action('bp_before_profile_loop_content', array( $this, 'bpt_load') );
+		add_action( 'bp_before_profile_loop_content', array( $this, 'bpt_load' ) );
 
-		add_action('bp_before_profile_loop_content', array( $this, 'bp_profile_tabs_top') );
-		add_action('bp_before_profile_field_content', array( $this, 'bp_profile_tabs_start_div') );
+		add_action( 'bp_before_profile_loop_content', array( $this, 'bp_profile_tabs_top' ) );
+		add_action( 'bp_before_profile_field_content', array( $this, 'bp_profile_tabs_start_div' ) );
 
-		add_action('bp_after_profile_field_content', array( $this, 'bp_profile_tabs_end_div') );
-		add_action('bp_after_profile_loop_content', array( $this, 'bp_profile_tabs_end_div') );
+		add_action( 'bp_after_profile_field_content', array( $this, 'bp_profile_tabs_end_div' ) );
+		add_action( 'bp_after_profile_loop_content', array( $this, 'bp_profile_tabs_end_div' ) );
 
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_bpt_script' ) );
+
+		add_action( 'init', array( $this, 'get_xprofile_groups' ) );
+		// bp_before_has_profile__parse_args
 		
-		add_action( 'wp_enqueue_scripts', array($this, 'register_bpt_script' ) );
-
-		global $wpdb;
-		$profile_field_groups_query = 'SELECT id, name FROM `'.$wpdb->prefix.'bp_xprofile_groups` order by group_order';
-		$this->groups_list = $wpdb->get_results($profile_field_groups_query);
+		$this->tabs_to_filter = '';
 	}
 
 	/**
@@ -140,7 +139,7 @@ class BP_Profile_Tabs {
 
 			if ( $network_wide ) {
 
-				// Get all blog ids
+				// Get all blog ids.
 				$blog_ids = self::get_blog_ids();
 
 				foreach ( $blog_ids as $blog_id ) {
@@ -174,7 +173,7 @@ class BP_Profile_Tabs {
 
 			if ( $network_wide ) {
 
-				// Get all blog ids
+				// Get all blog ids.
 				$blog_ids = self::get_blog_ids();
 
 				foreach ( $blog_ids as $blog_id ) {
@@ -224,7 +223,7 @@ class BP_Profile_Tabs {
 
 		global $wpdb;
 
-		// get an array of blog ids
+		// Get an array of blog ids.
 		$sql = "SELECT blog_id FROM $wpdb->blogs
 			WHERE archived = '0' AND spam = '0'
 			AND deleted = '0'";
@@ -240,25 +239,25 @@ class BP_Profile_Tabs {
 	private static function single_activate() {
 		// @TODO: Define activation functionality here
 
-		$bpt_options = get_option("bp_profile_tabs_option"); // option name
+		$bpt_options = get_option( 'bp_profile_tabs_option' ); // Option name.
 
-		// if no option settings set some defaults or import from old settings
+		// If no option settings set some defaults or import from old settings.
 		if ( empty( $bpt_options )  ) {
 
-			// check for old option settings
-			$old_theme_option = get_option("bp_profile_tabs_theme_option");
-			if ( !empty( $old_theme_option ) ) {
+			// Check for old option settings.
+			$old_theme_option = get_option( 'bp_profile_tabs_theme_option' );
+			if ( ! empty( $old_theme_option ) ) {
 				$bpt_options['bpt_theme'] = $old_theme_option;
 				$bpt_options['bpt_cdn'] = 'google';
-				update_option("bp_profile_tabs_option",$bpt_options);
-				delete_option("bp_profile_tabs_theme_option");
+				update_option( 'bp_profile_tabs_option', $bpt_options );
+				delete_option( 'bp_profile_tabs_theme_option' );
 			}
 
-			// set default options on new option name if there is no old options
+			// Set default options on new option name if there is no old options.
 			if ( empty( $old_theme_option ) ) {
 				$bpt_options['bpt_theme'] = 'cupertino';
 				$bpt_options['bpt_cdn'] = 'google';
-				add_option("bp_profile_tabs_option",$bpt_options);
+				add_option( 'bp_profile_tabs_option', $bpt_options );
 			}
 		}
 	}
@@ -283,7 +282,7 @@ class BP_Profile_Tabs {
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 
 		load_textdomain( $domain, trailingslashit( WP_LANG_DIR ) . $domain . '/' . $domain . '-' . $locale . '.mo' );
-		load_plugin_textdomain( $domain, FALSE, basename( plugin_dir_path( dirname( __FILE__ ) ) ) . '/languages/' );
+		load_plugin_textdomain( $domain, false, basename( plugin_dir_path( dirname( __FILE__ ) ) ) . '/languages/' );
 	}
 
 
@@ -295,23 +294,22 @@ class BP_Profile_Tabs {
 	public function bp_profile_tabs_top() {
 		echo '<div id="tabs"><ul>';
 		foreach ( $this->groups_list as $group ) {
-			echo '<li><a href="#tabs-'.$group->id.'">';
-			echo $group->name;
+			echo '<li><a href="#tabs-'.esc_attr( $group->id ) .'">';
+			echo esc_attr( $group->name );
 			echo '</a></li>';
 		}
 		echo '</ul>';
 	}
 	/**
-	 * Creates the start of each tabs div to hold the tab content. 
+	 * Creates the start of each tabs div to hold the tab content.
 	 *
 	 * @since    1.5.0
 	 */
 	public function bp_profile_tabs_start_div() {
-		if ( bp_is_user_profile() && !bp_is_user_profile_edit() ) {
+		if ( bp_is_user_profile() && ! bp_is_user_profile_edit() ) {
 			$profile_group_id = bp_get_the_profile_group_id();
-			echo '<div id="tabs-'.$profile_group_id.'">';
+			echo '<div id="tabs-' . esc_attr( $profile_group_id ) .'">';
 		}
-		
 	}
 
 	/**
@@ -319,9 +317,9 @@ class BP_Profile_Tabs {
 	 *
 	 * @since    1.5.0
 	 */
-	public function bp_profile_tabs_end_div() { 
-		if ( bp_is_user_profile() && !bp_is_user_profile_edit() ) {
-			echo "</div>"; 
+	public function bp_profile_tabs_end_div() {
+		if ( bp_is_user_profile() && ! bp_is_user_profile_edit() ) {
+			echo '</div>';
 		}
 	}
 
@@ -331,10 +329,8 @@ class BP_Profile_Tabs {
 	 * @since    1.5.0
 	 */
 	public function bpt_load() {
-
 		wp_enqueue_style( $this->plugin_slug . '-jquery-ui-style' );
 		wp_enqueue_script( $this->plugin_slug . '-script' );
-		//echo $this->get_jquery_ui_version();
 	}
 	 /**
 	 * Registers the tabs javascript and jQuery UI style.
@@ -344,39 +340,89 @@ class BP_Profile_Tabs {
 	public function register_bpt_script() {
 		wp_register_script( $this->plugin_slug . '-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'jquery-ui-tabs' ), self::VERSION );
 
-		$bpt_options = get_option("bp_profile_tabs_option");
+		$bpt_options = get_option( 'bp_profile_tabs_option' );
 		$protocol = is_ssl() ? 'https' : 'http';
 		$jquery_ui_version = $this->get_jquery_ui_version();
-		if ( $bpt_options['bpt_cdn'] == 'google' ) {
-			$jquery_ui_css_url = $protocol . '://ajax.googleapis.com/ajax/libs/jqueryui/'.$jquery_ui_version.'/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
+		if ( 'google' == $bpt_options['bpt_cdn'] ) {
+			$jquery_ui_css_url = $protocol . '://ajax.googleapis.com/ajax/libs/jqueryui/'.$jquery_ui_version.'/themes/'.$bpt_options['bpt_theme'].'/jquery-ui.css';
 		}
-		if ( $bpt_options['bpt_cdn'] == 'microsoft' ) {
-			$jquery_ui_css_url = $protocol . '://ajax.aspnetcdn.com/ajax/jquery.ui/'.$jquery_ui_version.'/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
+		if ( 'microsoft' == $bpt_options['bpt_cdn'] ) {
+			$jquery_ui_css_url = $protocol . '://ajax.aspnetcdn.com/ajax/jquery.ui/'.$jquery_ui_version.'/themes/'.$bpt_options['bpt_theme'].'/jquery-ui.css';
 		}
-		if ( $bpt_options['bpt_cdn'] == 'jquery' ) {
-			$jquery_ui_css_url = $protocol . '://code.jquery.com/ui/'.$jquery_ui_version.'/themes/'.$bpt_options["bpt_theme"].'/jquery-ui.css';
+		if ( 'jquery' == $bpt_options['bpt_cdn'] ) {
+			$jquery_ui_css_url = $protocol . '://code.jquery.com/ui/'.$jquery_ui_version.'/themes/'.$bpt_options['bpt_theme'].'/jquery-ui.css';
 		}
-
+		if ( ! empty( $bpt_options['bpt_custom'] ) ) {
+			$jquery_ui_css_url = $bpt_options['bpt_custom'];
+		}
 		wp_register_style( $this->plugin_slug . '-jquery-ui-style', $jquery_ui_css_url, array(), self::VERSION );
 	}
-
 
 	public function get_jquery_ui_version() {
 
 		global $wp_scripts;
 
-		if( !$wp_scripts instanceof WP_Scripts )
+		if ( ! $wp_scripts instanceof WP_Scripts ) {
 			$wp_scripts = new WP_Scripts();
+		}
 
 		$jquery_ui_core = $wp_scripts->query( 'jquery-ui-core' );
 
-		if( !$jquery_ui_core instanceof _WP_Dependency )
+		if ( ! $jquery_ui_core instanceof _WP_Dependency ) {
 			return $this->ui_version;
+		}
 
-		if( !isset( $jquery_ui_core->ver ) )
+		if ( ! isset( $jquery_ui_core->ver ) ) {
 			return $this->ui_version;
+		}
 
 		return $jquery_ui_core->ver;
+	}
+
+	public function get_xprofile_groups() {
+		global $wpdb;
+		$profile_field_groups_query = 'SELECT id, name FROM `'.$wpdb->prefix.'bp_xprofile_groups` order by group_order';
+		$this->groups_list = $wpdb->get_results( $profile_field_groups_query );
+		$current_user_id = get_current_user_id();
+		if ( isset( $current_user_id ) && $current_user_id > 0 ) {
+			$member_type = bp_get_member_type( $current_user_id );
+			if ( ! empty( $member_type ) ) {
+				$bpt_options = get_option( 'bp_profile_tabs_option' );
+				$groups_list = $bpt_options[ 'bpt_member_types_' . $member_type ];
+				foreach ( $this->groups_list as $tab_group_index => $tab_group ) {
+					if ( ! in_array( $tab_group->id, $groups_list ) ) {
+						unset( $this->groups_list[ $tab_group_index ] );
+						$this->tabs_to_filter .= $tab_group->id . ',';
+					}
+					// bp_has_profile -- bp_xprofile-template.php
+					// bp_parse_args -- bp-core-functions.php
+					add_filter( 'bp_before_has_profile_parse_args', array( $this, 'filter_tabs' ), 10, 1 );
+					/*
+					$r = bp_parse_args( $args, array(
+						'user_id'                => bp_displayed_user_id(),
+						'profile_group_id'       => false,
+						'hide_empty_groups'      => true,
+						'hide_empty_fields'      => $hide_empty_fields_default,
+						'fetch_fields'           => true,
+						'fetch_field_data'       => true,
+						'fetch_visibility_level' => $fetch_visibility_level_default,
+						'exclude_groups'         => false, // Comma-separated list of profile field group IDs to exclude
+						'exclude_fields'         => false, // Comma-separated list of profile field IDs to exclude
+						'update_meta_cache'      => true,
+					), 'has_profile' );
+					 */
+				}
+			}
+		}
+	}
+	function filter_tabs( $args ) {
+		if ( isset( $args['exclude_groups'] ) ) {
+			$args['exclude_groups'] .= $this->tabs_to_filter;	
+		} else {
+			$args['exclude_groups'] = $this->tabs_to_filter;	
+		}
+		
+		return $args;
 	}
 
 }

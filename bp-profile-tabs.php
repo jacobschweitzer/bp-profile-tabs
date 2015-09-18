@@ -1,5 +1,4 @@
 <?php
-
 /**
  *
  * @package   BP_Profile_Tabs
@@ -10,8 +9,8 @@
  *
  * Plugin Name:       BuddyPress Profile Tabs
  * Plugin URI:        http://ijas.me
- * Description:       Makes the profile groups BuddyPress provides into tabs to better organize and consolidate the profile page. 
- * Version:           1.5.7
+ * Description:       Makes the profile groups BuddyPress provides into tabs to better organize and consolidate the profile page.
+ * Version:           1.6.0
  * Author:            Jacob Schweitzer
  * Author URI:        http://ijas.me
  * Text Domain:       bp-profile-tabs
@@ -21,7 +20,7 @@
  */
 
 // If this file is called directly, abort.
-if ( !defined( 'WPINC' ) ) {
+if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 

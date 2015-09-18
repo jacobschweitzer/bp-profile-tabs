@@ -68,12 +68,45 @@
 					    ),
 					    'default' => 'google',
 					),
+					array(
+					    'name'    => __( 'Custom jQuery UI Theme', $this->plugin_slug ),
+					    'desc'    => __( 'Enter a URL to a custom jQuery UI theme to replace the defaults above.', $this->plugin_slug ),
+					    'id'      => $prefix . 'custom',
+					    'type'    => 'text',
+					    'default' => '',
+					),
 				),
 			);
-
+			
+			$member_types = bp_get_member_types( array(), 'objects' );
+			if ( !empty( $member_types ) ) {
+				//$option_fields['fields']['member_types'] = array();
+				global $wpdb;
+				$profile_field_groups_query = 'SELECT id, name FROM `'.$wpdb->prefix.'bp_xprofile_groups` order by group_order';
+				$this->groups_list = $wpdb->get_results($profile_field_groups_query);
+				$tab_options = array( );
+				$default_options = array( );
+				foreach ( $this->groups_list as $group ) {
+					//echo '<li><a href="#tabs-'.$group->id.'">';
+					//echo $group->name;
+					//echo '</a></li>';
+					$tab_options[$group->id] = $group->name;
+					$default_options[] = $group->id;
+				}
+				foreach ( $member_types as $member_type ) {
+					$option_fields['fields']['member_types_' . $member_type->name] = array(
+						'name'    => __( 'Tabs to show for ' . $member_type->name . ' member type', $this->plugin_slug ),
+					    'desc'    => __( 'Select the tabs '.$member_type->name.' can see', $this->plugin_slug ),
+					    'id'      => $prefix . 'member_types_' . $member_type->name,
+					    'type'    => 'multicheck',
+					    'options' => $tab_options,
+					    'default' => $default_options,
+					);
+				}
+			}
 			cmb_metabox_form( $option_fields, 'bp_profile_tabs_option' );
-			?>
 
+	?>
 		
 	<br/><br/>
 	
