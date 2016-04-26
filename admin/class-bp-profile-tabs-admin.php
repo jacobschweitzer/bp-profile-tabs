@@ -35,7 +35,6 @@ class BP_Profile_Tabs_Admin {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-
 		/*
 		 * Call $plugin_slug from public plugin class.
 		 */
@@ -56,14 +55,14 @@ class BP_Profile_Tabs_Admin {
 		 *  Custom Metabox and Fields for Wordpress
 		 * 	https://github.com/WebDevStudios/Custom-Metaboxes-and-Fields-for-WordPress
 		 */
-		if ( !class_exists( 'cmb_Meta_Box' ) ) {
-			add_action( 'init', array( $this, 'add_cmb_Meta_Box_class'), 9999 );
+		if ( ! class_exists( 'cmb_Meta_Box' ) ) {
+			add_action( 'init', array( $this, 'add_cmb_Meta_Box_class' ), 9999 );
 		}
 
-
-		//Add the export settings method
+		// Add the export settings method.
 		add_action( 'admin_init', array( $this, 'settings_export' ) );
-		//Add the import settings method
+
+		// Add the import settings method.
 		add_action( 'admin_init', array( $this, 'settings_import' ) );
 
 		add_action( 'admin_init', array( $this, 'admin_register_bpt_script' ) );
@@ -81,26 +80,28 @@ class BP_Profile_Tabs_Admin {
 	public static function get_instance() {
 
 		// If the single instance hasn't been set, set it now.
-		if ( null == self::$instance ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self;
 		}
 
 		return self::$instance;
 	}
 
-	
 	/**
 	 * Register the  BuddyPress Profile Tabs administration menu into the WordPress Dashboard menu.
 	 *
 	 * @since    1.5.0
 	 */
 	public function add_plugin_admin_menu() {
-
 		/*
 		 * Add BuddyPress Profile Tabs settings page to the Settings menu.
 		 */
 		$this->plugin_screen_hook_suffix = add_options_page(
-				__( 'BuddyPress Profile Tabs', $this->plugin_slug ), __( 'BP Profile Tabs', $this->plugin_slug ), 'manage_options', $this->plugin_slug, array( $this, 'display_plugin_admin_page' )
+			__( 'BuddyPress Profile Tabs', $this->plugin_slug ),
+			__( 'BP Profile Tabs', $this->plugin_slug ),
+			'manage_options',
+			$this->plugin_slug,
+			array( $this, 'display_plugin_admin_page' )
 		);
 	}
 
@@ -116,38 +117,42 @@ class BP_Profile_Tabs_Admin {
 	/**
 	 * Add settings action link to the plugins page.
 	 *
+	 * @param array $links Menu items array.
 	 * @since    1.5.0
+	 *
+	 * @return array
 	 */
 	public function add_action_links( $links ) {
 		return array_merge(
-				array(
-			'settings' => '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings' ) . '</a>',
-				), $links
+			array( 'settings' => '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings' ) . '</a>' ),
+			$links
 		);
 	}
 
-
+	/**
+	 * Export settings.
+	 */
 	function settings_export() {
+		$post_vars = filter_input_array( INPUT_POST, FILTER_SANITIZE_STRING );
+		if ( empty( $post_vars['pn_action'] ) || 'export_settings' !== $post_vars['pn_action'] ) {
+			return;
+		}
 
-		if ( empty( $_POST[ 'pn_action' ] ) || 'export_settings' != $_POST[ 'pn_action' ] ) {
+		if ( ! wp_verify_nonce( $post_vars['pn_export_nonce'], 'pn_export_nonce' ) ) {
 			return;
 		}
-		
-		if ( !wp_verify_nonce( $_POST[ 'pn_export_nonce' ], 'pn_export_nonce' ) ) {
+
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		
-		if ( !current_user_can( 'manage_options' ) ) {
-			return;
-		}
-		$settings[ 0 ] = get_option( 'bp_profile_tabs_option' );
+		$settings[0] = get_option( 'bp_profile_tabs_option' );
 
 		ignore_user_abort( true );
 
 		nocache_headers();
 		header( 'Content-Type: application/json; charset=utf-8' );
 		header( 'Content-Disposition: attachment; filename=pn-settings-export-' . date( 'm-d-Y' ) . '.json' );
-		header( "Expires: 0" );
+		header( 'Expires: 0' );
 
 		echo json_encode( $settings );
 		exit;
@@ -157,21 +162,21 @@ class BP_Profile_Tabs_Admin {
 	 * Process a settings import from a json file
 	 */
 	function settings_import() {
+		$post_vars = filter_input_array( INPUT_POST, FILTER_SANITIZE_STRING );
+		if ( empty( $post_vars['pn_action'] ) || 'import_settings' !== $post_vars['pn_action'] ) {
+			return;
+		}
 
-		if ( empty( $_POST[ 'pn_action' ] ) || 'import_settings' != $_POST[ 'pn_action' ] ) {
+		if ( ! wp_verify_nonce( $post_vars['pn_import_nonce'], 'pn_import_nonce' ) ) {
 			return;
 		}
-		
-		if ( !wp_verify_nonce( $_POST[ 'pn_import_nonce' ], 'pn_import_nonce' ) ) {
-			return;
-		}
-		
-		if ( !current_user_can( 'manage_options' ) ) {
+
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 		$extension = end( explode( '.', $_FILES[ 'import_file' ][ 'name' ] ) );
 
-		if ( $extension != 'json' ) {
+		if ( 'json' !== $extension ) {
 			wp_die( __( 'Please upload a valid .json file', $this->plugin_slug ) );
 		}
 
@@ -182,62 +187,67 @@ class BP_Profile_Tabs_Admin {
 		}
 
 		// Retrieve the settings from the file and convert the json object to an array.
-		$settings = ( array ) json_decode( file_get_contents( $import_file ) );
+		$settings = (array) json_decode( file_get_contents( $import_file ) );
 
-		update_option( 'bp_profile_tabs_option', get_object_vars( $settings[ 0 ] ) );
+		update_option( 'bp_profile_tabs_option', get_object_vars( $settings[0] ) );
 
 		wp_safe_redirect( admin_url( 'options-general.php?page=' . $this->plugin_slug ) );
 		exit;
 	}
+
+	/**
+	 * Get the CMBF meta box class
+	 */
 	public function add_cmb_Meta_Box_class() {
 		require_once( plugin_dir_path( __FILE__ ) . 'includes/CMBF/init.php' );
 	}
-	public function load_admin_scripts(){
-		if ( isset( $_GET['page'] ) && $_GET['page'] === 'bp-profile-tabs' ) {
-			if ( isset( $_POST['bpt_custom'] ) ) {
+
+	/**
+	 * Load the admin scripts
+	 */
+	public function load_admin_scripts() {
+		$post_vars = filter_input_array( INPUT_POST, FILTER_SANITIZE_STRING );
+		$get_vars = filter_input_array( INPUT_GET, FILTER_SANITIZE_STRING );
+		if ( isset( $get_vars['page'] ) && 'bp-profile-tabs' === $get_vars['page'] ) {
+			if ( isset( $post_vars['bpt_custom'] ) ) {
 				wp_deregister_style( $this->plugin_slug . '-jquery-ui-style' );
 				wp_dequeue_style( $this->plugin_slug . '-jquery-ui-style' );
-				//$bpt_options = get_option("bp_profile_tabs_option");
-				$jquery_ui_css_url = $_POST['bpt_custom'];
-				//wp_register_style( $this->plugin_slug . '-jquery-ui-style', $jquery_ui_css_url, array(), $this->version );
-				//wp_enqueue_style( $this->plugin_slug . '-jquery-ui-style' );
-				//echo $jquery_ui_css_url;
+				$jquery_ui_css_url = $post_vars['bpt_custom'];
 				wp_enqueue_style( $this->plugin_slug . '-jquery-ui-style', $jquery_ui_css_url, array(), $this->version );
-			}
-			else {
+			} else {
 				wp_enqueue_style( $this->plugin_slug . '-jquery-ui-style' );
 			}
 			wp_enqueue_script( $this->plugin_slug . '-script' );
 		}
 
 	}
+
+	/**
+	 * Register the BPT style
+	 */
 	public function admin_register_bpt_script() {
+		$post_vars = filter_input_array( INPUT_POST, FILTER_SANITIZE_STRING );
 		wp_register_script( $this->plugin_slug . '-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery', 'jquery-ui-tabs' ), $this->version );
-		$bpt_theme = isset( $_POST['bpt_theme'] ) ? $_POST['bpt_theme'] : '';
-		$bpt_options = get_option("bp_profile_tabs_option");
+		$bpt_theme = isset( $post_vars['bpt_theme'] ) ? sanitize_text_field( $post_vars['bpt_theme'] ) : '';
+		$bpt_options = get_option( 'bp_profile_tabs_option' );
 		if ( empty( $bpt_theme ) ) {
-			$bpt_theme = $bpt_options["bpt_theme"];
+			$bpt_theme = $bpt_options['bpt_theme'];
 		}
 
 		$protocol = is_ssl() ? 'https' : 'http';
 		$jquery_ui_version = $this->jquery_ui_version;
-		if ( $bpt_options['bpt_cdn'] == 'google' ) {
+		if ( 'google' === $bpt_options['bpt_cdn'] ) {
 				$jquery_ui_css_url = $protocol . '://ajax.googleapis.com/ajax/libs/jqueryui/'.$jquery_ui_version.'/themes/'.$bpt_theme.'/jquery-ui.css';
-									//http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css
 		}
-		if ( $bpt_options['bpt_cdn'] == 'microsoft' ) {
+		if ( 'microsoft' === $bpt_options['bpt_cdn'] ) {
 			$jquery_ui_css_url = $protocol . '://ajax.aspnetcdn.com/ajax/jquery.ui/'.$jquery_ui_version.'/themes/'.$bpt_theme.'/jquery-ui.css';
-										//http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.2/themes/blitzer/jquery-ui.css
-										//http://ajax.aspnetcdn.com/ajax/jquery.ui/1.11.3/jquery-ui.min.js
 		}
-		if ( $bpt_options['bpt_cdn'] == 'jquery' ) {
+		if ( 'jquery' === $bpt_options['bpt_cdn'] ) {
 			$jquery_ui_css_url = $protocol . '://code.jquery.com/ui/'.$jquery_ui_version.'/themes/'.$bpt_theme.'/jquery-ui.css';
 		}
-		if ( !empty( $bpt_options['bpt_custom'] ) ) {
+		if ( ! empty( $bpt_options['bpt_custom'] ) ) {
 			$jquery_ui_css_url = $bpt_options['bpt_custom'];
 		}
 		wp_register_style( $this->plugin_slug . '-jquery-ui-style', $jquery_ui_css_url, array(), $this->version );
 	}
-	
-
 }

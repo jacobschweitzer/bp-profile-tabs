@@ -7,8 +7,6 @@
  * @link      http://ijas.me
  * @copyright 2014 Jacob Schweitzer
  */
-
-
 class BP_Profile_Tabs {
 
 	/**
@@ -67,8 +65,7 @@ class BP_Profile_Tabs {
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_bpt_script' ) );
 
 		add_action( 'init', array( $this, 'get_xprofile_groups' ) );
-		// bp_before_has_profile__parse_args
-		
+
 		$this->tabs_to_filter = '';
 	}
 
@@ -116,7 +113,7 @@ class BP_Profile_Tabs {
 	public static function get_instance() {
 
 		// If the single instance hasn't been set, set it now.
-		if ( null == self::$instance ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self;
 		}
 
@@ -128,7 +125,7 @@ class BP_Profile_Tabs {
 	 *
 	 * @since    1.5.0
 	 *
-	 * @param    boolean    $network_wide    True if WPMU superadmin uses
+	 * @param    boolean $network_wide       True if WPMU superadmin uses
 	 *                                       "Network Activate" action, false if
 	 *                                       WPMU is disabled or plugin is
 	 *                                       activated on an individual blog.
@@ -162,7 +159,7 @@ class BP_Profile_Tabs {
 	 *
 	 * @since    1.5.0
 	 *
-	 * @param    boolean    $network_wide    True if WPMU superadmin uses
+	 * @param    boolean $network_wide       True if WPMU superadmin uses
 	 *                                       "Network Deactivate" action, false if
 	 *                                       WPMU is disabled or plugin is
 	 *                                       deactivated on an individual blog.
@@ -196,7 +193,7 @@ class BP_Profile_Tabs {
 	 *
 	 * @since    1.5.0
 	 *
-	 * @param    int    $blog_id    ID of the new blog.
+	 * @param    int $blog_id ID of the new blog.
 	 */
 	public function activate_new_site( $blog_id ) {
 
@@ -235,20 +232,20 @@ class BP_Profile_Tabs {
 	 * Fired for each blog when the plugin is activated.
 	 *
 	 * @since    1.5.0
+	 * @todo: Define activation functionality at the beginning of this function
 	 */
 	private static function single_activate() {
-		// @TODO: Define activation functionality here
 
 		$bpt_options = get_option( 'bp_profile_tabs_option' ); // Option name.
 
 		// If no option settings set some defaults or import from old settings.
-		if ( empty( $bpt_options )  ) {
+		if ( empty( $bpt_options ) ) {
 
 			// Check for old option settings.
 			$old_theme_option = get_option( 'bp_profile_tabs_theme_option' );
 			if ( ! empty( $old_theme_option ) ) {
 				$bpt_options['bpt_theme'] = $old_theme_option;
-				$bpt_options['bpt_cdn'] = 'google';
+				$bpt_options['bpt_cdn']   = 'google';
 				update_option( 'bp_profile_tabs_option', $bpt_options );
 				delete_option( 'bp_profile_tabs_theme_option' );
 			}
@@ -256,7 +253,7 @@ class BP_Profile_Tabs {
 			// Set default options on new option name if there is no old options.
 			if ( empty( $old_theme_option ) ) {
 				$bpt_options['bpt_theme'] = 'cupertino';
-				$bpt_options['bpt_cdn'] = 'google';
+				$bpt_options['bpt_cdn']   = 'google';
 				add_option( 'bp_profile_tabs_option', $bpt_options );
 			}
 		}
@@ -294,12 +291,13 @@ class BP_Profile_Tabs {
 	public function bp_profile_tabs_top() {
 		echo '<div id="tabs"><ul>';
 		foreach ( $this->groups_list as $group ) {
-			echo '<li><a href="#tabs-'.esc_attr( $group->id ) .'">';
+			echo '<li><a href="#tabs-' . esc_attr( $group->id ) . '">';
 			echo esc_attr( $group->name );
 			echo '</a></li>';
 		}
 		echo '</ul>';
 	}
+
 	/**
 	 * Creates the start of each tabs div to hold the tab content.
 	 *
@@ -308,7 +306,7 @@ class BP_Profile_Tabs {
 	public function bp_profile_tabs_start_div() {
 		if ( bp_is_user_profile() && ! bp_is_user_profile_edit() ) {
 			$profile_group_id = bp_get_the_profile_group_id();
-			echo '<div id="tabs-' . esc_attr( $profile_group_id ) .'">';
+			echo '<div id="tabs-' . esc_attr( $profile_group_id ) . '">';
 		}
 	}
 
@@ -332,25 +330,33 @@ class BP_Profile_Tabs {
 		wp_enqueue_style( $this->plugin_slug . '-jquery-ui-style' );
 		wp_enqueue_script( $this->plugin_slug . '-script' );
 	}
-	 /**
+
+	/**
 	 * Registers the tabs javascript and jQuery UI style.
+	 *
 	 * @since    1.5.0
 	 */
-
 	public function register_bpt_script() {
-		wp_register_script( $this->plugin_slug . '-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'jquery-ui-tabs' ), self::VERSION );
+		wp_register_script(
+			$this->plugin_slug . '-script', plugins_url( 'assets/js/public.js', __FILE__ ),
+			array(
+				'jquery',
+				'jquery-ui-tabs',
+			),
+			self::VERSION
+		);
 
-		$bpt_options = get_option( 'bp_profile_tabs_option' );
-		$protocol = is_ssl() ? 'https' : 'http';
+		$bpt_options       = get_option( 'bp_profile_tabs_option' );
+		$protocol          = is_ssl() ? 'https' : 'http';
 		$jquery_ui_version = $this->get_jquery_ui_version();
-		if ( 'google' == $bpt_options['bpt_cdn'] ) {
-			$jquery_ui_css_url = $protocol . '://ajax.googleapis.com/ajax/libs/jqueryui/'.$jquery_ui_version.'/themes/'.$bpt_options['bpt_theme'].'/jquery-ui.css';
+		if ( 'google' === $bpt_options['bpt_cdn'] ) {
+			$jquery_ui_css_url = $protocol . '://ajax.googleapis.com/ajax/libs/jqueryui/' . $jquery_ui_version . '/themes/' . $bpt_options['bpt_theme'] . '/jquery-ui.css';
 		}
-		if ( 'microsoft' == $bpt_options['bpt_cdn'] ) {
-			$jquery_ui_css_url = $protocol . '://ajax.aspnetcdn.com/ajax/jquery.ui/'.$jquery_ui_version.'/themes/'.$bpt_options['bpt_theme'].'/jquery-ui.css';
+		if ( 'microsoft' === $bpt_options['bpt_cdn'] ) {
+			$jquery_ui_css_url = $protocol . '://ajax.aspnetcdn.com/ajax/jquery.ui/' . $jquery_ui_version . '/themes/' . $bpt_options['bpt_theme'] . '/jquery-ui.css';
 		}
-		if ( 'jquery' == $bpt_options['bpt_cdn'] ) {
-			$jquery_ui_css_url = $protocol . '://code.jquery.com/ui/'.$jquery_ui_version.'/themes/'.$bpt_options['bpt_theme'].'/jquery-ui.css';
+		if ( 'jquery' === $bpt_options['bpt_cdn'] ) {
+			$jquery_ui_css_url = $protocol . '://code.jquery.com/ui/' . $jquery_ui_version . '/themes/' . $bpt_options['bpt_theme'] . '/jquery-ui.css';
 		}
 		if ( ! empty( $bpt_options['bpt_custom'] ) ) {
 			$jquery_ui_css_url = $bpt_options['bpt_custom'];
@@ -358,6 +364,11 @@ class BP_Profile_Tabs {
 		wp_register_style( $this->plugin_slug . '-jquery-ui-style', $jquery_ui_css_url, array(), self::VERSION );
 	}
 
+	/**
+	 * Get the current jQuery version of this WP install
+	 *
+	 * @return string
+	 */
 	public function get_jquery_ui_version() {
 
 		global $wp_scripts;
@@ -379,50 +390,53 @@ class BP_Profile_Tabs {
 		return $jquery_ui_core->ver;
 	}
 
+	/**
+	 * Get the xprofile groups from the database
+	 */
 	public function get_xprofile_groups() {
-		global $wpdb;
-		$profile_field_groups_query = 'SELECT id, name FROM `'.$wpdb->prefix.'bp_xprofile_groups` order by group_order';
-		$this->groups_list = $wpdb->get_results( $profile_field_groups_query );
-		$current_user_id = get_current_user_id();
-		if ( isset( $current_user_id ) && $current_user_id > 0 ) {
-			$member_type = bp_get_member_type( $current_user_id );
-			if ( ! empty( $member_type ) ) {
-				$bpt_options = get_option( 'bp_profile_tabs_option' );
-				$groups_list = $bpt_options[ 'bpt_member_types_' . $member_type ];
-				foreach ( $this->groups_list as $tab_group_index => $tab_group ) {
-					if ( ! in_array( $tab_group->id, $groups_list ) ) {
-						unset( $this->groups_list[ $tab_group_index ] );
-						$this->tabs_to_filter .= $tab_group->id . ',';
+		if ( class_exists( 'buddypress' ) ) {
+			$xprofile_groups = wp_cache_get( 'bpt_xprofile_groups' );
+			if ( false === $xprofile_groups ) {
+				global $wpdb;
+				$profile_field_groups_query = 'SELECT id, name FROM `' . $wpdb->prefix . 'bp_xprofile_groups` order by group_order';
+				$xprofile_groups          = $wpdb->get_results( $profile_field_groups_query );
+				wp_cache_set( 'bpt_xprofile_groups', $xprofile_groups );
+			}
+			$this->groups_list = $xprofile_groups;
+			$current_user_id = get_current_user_id();
+			if ( isset( $current_user_id ) && $current_user_id > 0 ) {
+				$member_type = bp_get_member_type( $current_user_id );
+				if ( ! empty( $member_type ) ) {
+					$bpt_options = get_option( 'bp_profile_tabs_option' );
+					$groups_list = $bpt_options[ 'bpt_member_types_' . $member_type ];
+					foreach ( $this->groups_list as $tab_group_index => $tab_group ) {
+						if ( ! in_array( $tab_group->id, $groups_list ) ) {
+							unset( $this->groups_list[ $tab_group_index ] );
+							$this->tabs_to_filter .= $tab_group->id . ',';
+						}
+						// Reference: bp_has_profile -- bp_xprofile-template.php .
+						// Reference: bp_parse_args -- bp-core-functions.php .
+						add_filter( 'bp_before_has_profile_parse_args', array( $this, 'filter_tabs' ), 10, 1 );
 					}
-					// bp_has_profile -- bp_xprofile-template.php
-					// bp_parse_args -- bp-core-functions.php
-					add_filter( 'bp_before_has_profile_parse_args', array( $this, 'filter_tabs' ), 10, 1 );
-					/*
-					$r = bp_parse_args( $args, array(
-						'user_id'                => bp_displayed_user_id(),
-						'profile_group_id'       => false,
-						'hide_empty_groups'      => true,
-						'hide_empty_fields'      => $hide_empty_fields_default,
-						'fetch_fields'           => true,
-						'fetch_field_data'       => true,
-						'fetch_visibility_level' => $fetch_visibility_level_default,
-						'exclude_groups'         => false, // Comma-separated list of profile field group IDs to exclude
-						'exclude_fields'         => false, // Comma-separated list of profile field IDs to exclude
-						'update_meta_cache'      => true,
-					), 'has_profile' );
-					 */
 				}
 			}
 		}
 	}
+
+	/**
+	 * Filter the tabs to show on the member page
+	 *
+	 * @param array $args Tabs arguments.
+	 *
+	 * @return mixed
+	 */
 	function filter_tabs( $args ) {
 		if ( isset( $args['exclude_groups'] ) ) {
-			$args['exclude_groups'] .= $this->tabs_to_filter;	
+			$args['exclude_groups'] .= $this->tabs_to_filter;
 		} else {
-			$args['exclude_groups'] = $this->tabs_to_filter;	
+			$args['exclude_groups'] = $this->tabs_to_filter;
 		}
-		
+
 		return $args;
 	}
-
 }
